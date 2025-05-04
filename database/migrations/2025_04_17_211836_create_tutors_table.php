@@ -11,15 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tutors', function (Blueprint $table) {
-            $table->id();
-            $table->string('first_name');
-            $table->string('last_name');
-            $table->string('phone')->nullable();
-            $table->string('email')->nullable();
-            $table->string('relationship')->nullable(); // parent, guardian, etc.
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('tutors')) {
+            Schema::create('tutors', function (Blueprint $table) {
+                $table->id();
+                $table->string('first_name');
+                $table->string('last_name');
+                $table->string('phone')->nullable();
+                $table->string('email')->nullable();
+                $table->string('relationship')->nullable(); // parent, guardian, etc.
+                $table->timestamps();
+            });
+        }
     }
 
     /**

@@ -11,25 +11,25 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Only create the athletes table if it doesn't exist yet
         if (!Schema::hasTable('athletes')) {
             Schema::create('athletes', function (Blueprint $table) {
                 $table->id();
-                $table->string('first_name');
-                $table->string('last_name');
-                $table->enum('gender', ['m', 'f', 'other'])->nullable();
+                $table->string('first_name')->nullable();
+                $table->string('last_name')->nullable();
+                $table->string('gender')->nullable();
                 $table->string('identity_document')->nullable();
                 $table->date('birth_date')->nullable();
-                $table->string('father_name')->nullable();
-                $table->string('mother_name')->nullable();
-                $table->date('evaluation_date');
+                $table->date('evaluation_date')->nullable();
                 $table->integer('age')->nullable();
                 $table->string('grade')->nullable();
                 $table->string('sport')->nullable();
                 $table->string('category')->nullable();
                 $table->unsignedBigInteger('institution_id')->nullable();
+                $table->string('father_name')->nullable();
+                $table->string('mother_name')->nullable();
+                $table->unsignedBigInteger('tutor_id')->nullable();
                 $table->timestamps();
-                
-                // No foreign keys for now
             });
         }
     }

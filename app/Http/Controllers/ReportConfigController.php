@@ -24,9 +24,22 @@ class ReportConfigController extends Controller
             'fields' => 'required|array|min:1',
         ]);
 
+        // Define mandatory fields that should always be included
+        $mandatoryFields = [
+            'nombre',
+            'apellido', 
+            'documento_de_identidad',
+            'fecha_de_nacimiento',
+            'institucion'
+        ];
+
+        // Ensure mandatory fields are included in the submitted fields
+        $fields = $request->fields ?? [];
+        $fields = array_unique(array_merge($fields, $mandatoryFields));
+
         ReportConfig::create([
             'name' => $request->name,
-            'fields' => $request->fields,
+            'fields' => $fields,
         ]);
 
         return redirect()->back()->with('success', 'Report configuration saved!');

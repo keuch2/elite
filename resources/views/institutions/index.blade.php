@@ -2,10 +2,10 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Institutions') }}
+                {{ __('Instituciones') }}
             </h2>
             <a href="{{ route('institutions.create') }}" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-                {{ __('Add Institution') }}
+                {{ __('Añadir Institución') }}
             </a>
         </div>
     </x-slot>
@@ -21,16 +21,16 @@
                                     type="text" 
                                     name="search" 
                                     value="{{ request('search') }}" 
-                                    placeholder="Search institutions..." 
+                                    placeholder="Buscar instituciones..." 
                                     class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
                             </div>
                             <div class="flex space-x-2">
                                 <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-                                    {{ __('Search') }}
+                                    {{ __('Buscar') }}
                                 </button>
                                 @if(request()->has('search'))
                                     <a href="{{ route('institutions.index') }}" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700">
-                                        {{ __('Clear') }}
+                                        {{ __('Limpiar') }}
                                     </a>
                                 @endif
                             </div>
@@ -47,11 +47,11 @@
                         <table class="min-w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700">
                             <thead>
                                 <tr>
-                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Name</th>
-                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Address</th>
-                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Athletes</th>
-                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Contact</th>
-                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Actions</th>
+                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Nombre</th>
+                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Dirección</th>
+                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Atletas</th>
+                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Contacto</th>
+                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -81,13 +81,13 @@
                                         </td>
                                         <td class="py-2 px-4 border-b border-gray-300 dark:border-gray-700">
                                             <div class="flex items-center space-x-2">
-                                                <a href="{{ route('institutions.show', $institution->id) }}" class="text-blue-600 hover:underline">View</a>
-                                                <a href="{{ route('institutions.edit', $institution->id) }}" class="text-amber-600 hover:underline">Edit</a>
+                                                <a href="{{ route('institutions.show', $institution->id) }}" class="text-blue-600 hover:underline">Ver</a>
+                                                <a href="{{ route('institutions.edit', $institution->id) }}" class="text-amber-600 hover:underline">Editar</a>
                                                 <form action="{{ route('institutions.destroy', $institution->id) }}" method="POST" class="inline-block">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:underline" onclick="return confirm('Are you sure you want to delete this institution? This will not delete associated athletes but will remove the association.')">
-                                                        Delete
+                                                    <button type="submit" class="text-red-600 hover:underline" onclick="return confirm('¿Está seguro de que quiere eliminar esta institución? Esto no eliminará los atletas asociados pero eliminará la asociación.')">
+                                                        Eliminar
                                                     </button>
                                                 </form>
                                             </div>
@@ -96,7 +96,7 @@
                                 @empty
                                     <tr>
                                         <td colspan="5" class="py-4 px-4 text-center text-gray-500 dark:text-gray-400">
-                                            No institutions found.
+                                            No se encontraron instituciones.
                                         </td>
                                     </tr>
                                 @endforelse

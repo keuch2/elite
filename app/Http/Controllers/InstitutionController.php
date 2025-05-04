@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Institution;
-use App\Models\Athlete;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class InstitutionController extends Controller
 {
@@ -14,13 +12,7 @@ class InstitutionController extends Controller
      */
     public function index()
     {
-        $institutions = Institution::withCount([
-            'athletes' => function($query) {
-                // Count unique athletes based on identity or name+birthdate
-                $query->select(DB::raw('COUNT(DISTINCT COALESCE(identity_document, CONCAT(first_name, last_name, birth_date)))'));
-            }
-        ])->get();
-        
+        $institutions = Institution::paginate(15);
         return view('institutions.index', compact('institutions'));
     }
 
@@ -38,10 +30,7 @@ class InstitutionController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:institutions',
-            'address' => 'nullable|string|max:255',
-            'phone' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:255',
+            'name' => 'required|string|max:255|unique:institutions,name',
         ]);
 
         $institution = Institution::create($request->all());
@@ -51,48 +40,20 @@ class InstitutionController extends Controller
     }
 
     /**
-     * Display the specified institution with its athletes.
+     * Display the specified institution and its athletes.
      */
     public function show(string $id)
     {
-        $institution = Institution::findOrFail($id);
-        
-        // Get unique athlete profiles from this institution
-        // by grouping athletes by identity document or name+birthdate
-        $athleteProfiles = DB::table('athletes')
-            ->select(
-                DB::raw('MIN(athletes.id) as id'), // Use the first athlete record as reference
-                'athletes.first_name',
-                'athletes.last_name',
-                'athletes.gender',
-                'athletes.birth_date',
-                'athletes.identity_document',
-                DB::raw('COUNT(*) as evaluations_count'),
-                DB::raw('MAX(athletes.evaluation_date) as latest_evaluation')
-            )
-            ->where('institution_id', $id)
-            ->groupBy(function($athlete) {
-                if (!empty($athlete->identity_document)) {
-                    return $athlete->identity_document;
-                }
-                return $athlete->first_name . $athlete->last_name . $athlete->birth_date;
-            })
-            ->orderBy('athletes.last_name')
-            ->paginate(15);
-
-        return view('institutions.show', [
-            'institution' => $institution,
-            'athleteProfiles' => $athleteProfiles,
-        ]);
+        $institution = Institution::with('athletes')->findOrFail($id);
+        return view('institutions.show', compact('institution'));
     }
 
     /**
-     * Show the form for editing the specified institution.
+     * Show the form for editing the institution.
      */
     public function edit(string $id)
     {
         $institution = Institution::findOrFail($id);
-        
         return view('institutions.edit', compact('institution'));
     }
 
@@ -104,10 +65,7 @@ class InstitutionController extends Controller
         $institution = Institution::findOrFail($id);
         
         $request->validate([
-            'name' => 'required|string|max:255|unique:institutions,name,'.$id,
-            'address' => 'nullable|string|max:255',
-            'phone' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:255',
+            'name' => 'required|string|max:255|unique:institutions,name,' . $id,
         ]);
 
         $institution->update($request->all());
@@ -122,80 +80,43 @@ class InstitutionController extends Controller
     public function destroy(string $id)
     {
         $institution = Institution::findOrFail($id);
-        
-        // Check if the institution has athletes
-        if ($institution->athletes()->exists()) {
-            return back()->with('error', 'Cannot delete institution with associated athletes.');
+        // Check if there are athletes associated with this institution
+        if ($institution->athletes()->count() > 0) {
+            return redirect()->route('institutions.index')
+                ->with('error', 'Cannot delete institution because it has athletes associated with it.');
         }
-        
+
         $institution->delete();
 
         return redirect()->route('institutions.index')
             ->with('success', 'Institution deleted successfully.');
     }
-    
+
     /**
-     * List all evaluations for athletes from this institution.
+     * Show all evaluations from an institution.
      */
     public function evaluations(string $id)
     {
         $institution = Institution::findOrFail($id);
+        $evaluations = $institution->athletes()->with('anthropometricData')->paginate(15);
         
-        $evaluations = Athlete::with('anthropometricData')
-            ->where('institution_id', $id)
-            ->orderBy('evaluation_date', 'desc')
-            ->paginate(20);
-            
         return view('institutions.evaluations', [
             'institution' => $institution,
             'evaluations' => $evaluations,
         ]);
     }
-    
+
     /**
-     * Show statistical reports about the athletes in this institution.
+     * Show reports for an institution.
      */
     public function reports(string $id)
     {
         $institution = Institution::findOrFail($id);
+        $reports = $institution->athletes()->with('reports')->paginate(15);
         
-        // Get counts by gender
-        $genderStats = DB::table('athletes')
-            ->select('gender', DB::raw('COUNT(DISTINCT COALESCE(identity_document, CONCAT(first_name, last_name, birth_date))) as count'))
-            ->where('institution_id', $id)
-            ->groupBy('gender')
-            ->get();
-            
-        // Get counts by age groups
-        $ageStats = DB::table('athletes')
-            ->select(
-                DB::raw('CASE 
-                    WHEN age < 10 THEN "Under 10" 
-                    WHEN age BETWEEN 10 AND 14 THEN "10-14"
-                    WHEN age BETWEEN 15 AND 18 THEN "15-18"
-                    ELSE "Over 18" 
-                END as age_group'),
-                DB::raw('COUNT(*) as count')
-            )
-            ->where('institution_id', $id)
-            ->groupBy('age_group')
-            ->orderBy('age_group')
-            ->get();
-            
-        // Get counts by sport
-        $sportStats = DB::table('athletes')
-            ->select('sport', DB::raw('COUNT(*) as count'))
-            ->where('institution_id', $id)
-            ->whereNotNull('sport')
-            ->groupBy('sport')
-            ->orderBy('count', 'desc')
-            ->get();
-            
         return view('institutions.reports', [
             'institution' => $institution,
-            'genderStats' => $genderStats,
-            'ageStats' => $ageStats, 
-            'sportStats' => $sportStats,
+            'reports' => $reports,
         ]);
     }
 }

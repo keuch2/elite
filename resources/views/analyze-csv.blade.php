@@ -2,10 +2,10 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Analyze CSV Data') }}
+                {{ __('Analizar Datos CSV') }}
             </h2>
             <a href="{{ route('import.form') }}" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700">
-                {{ __('Back to Import') }}
+                {{ __('Volver a Importar') }}
             </a>
         </div>
     </x-slot>
@@ -14,9 +14,9 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <h3 class="text-lg font-medium mb-4">CSV File Preview</h3>
+                    <h3 class="text-lg font-medium mb-4">Vista Previa del Archivo CSV</h3>
                     <p class="mb-4 text-gray-600 dark:text-gray-400">
-                        Review the data before importing. The system will validate the data and highlight any potential issues.
+                        Revise los datos antes de importar. El sistema validará los datos y destacará cualquier problema potencial.
                     </p>
 
                     <div class="bg-yellow-50 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-800 rounded-md p-4 mb-6">
@@ -27,11 +27,11 @@
                                 </svg>
                             </div>
                             <div class="ml-3">
-                                <h4 class="text-sm font-medium text-yellow-800 dark:text-yellow-200">Preview Mode</h4>
+                                <h4 class="text-sm font-medium text-yellow-800 dark:text-yellow-200">Modo Vista Previa</h4>
                                 <div class="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
                                     <p>
-                                        This is a preview of your data. Please check for any errors or inconsistencies before proceeding with the import.
-                                        Once you confirm, athletes and their associated data will be created or updated in the database.
+                                        Esta es una vista previa de sus datos. Por favor, revise cualquier error o inconsistencia antes de continuar con la importación.
+                                        Una vez que confirme, los atletas y sus datos asociados serán creados o actualizados en la base de datos.
                                     </p>
                                 </div>
                             </div>
@@ -63,14 +63,14 @@
                                 @empty
                                     <tr>
                                         <td colspan="{{ count($headers) }}" class="py-4 px-4 text-center text-gray-500 dark:text-gray-400">
-                                            No data found in the CSV file.
+                                            No se encontraron datos en el archivo CSV.
                                         </td>
                                     </tr>
                                 @endforelse
                                 @if(count($rows) > 10)
                                     <tr>
                                         <td colspan="{{ count($headers) }}" class="py-2 px-4 text-center text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700">
-                                            ... {{ count($rows) - 10 }} more rows not shown in preview
+                                            ... {{ count($rows) - 10 }} filas más no mostradas en la vista previa
                                         </td>
                                     </tr>
                                 @endif
@@ -79,18 +79,18 @@
                     </div>
                     
                     <div class="mt-4 text-gray-600 dark:text-gray-400">
-                        <p>Total rows: {{ count($rows) }}</p>
+                        <p>Total de filas: {{ count($rows) }}</p>
                     </div>
                 </div>
             </div>
 
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <h3 class="text-lg font-medium mb-4">Import Options</h3>
+                    <h3 class="text-lg font-medium mb-4">Opciones de Importación</h3>
 
                     <div class="space-y-4">
                         <div>
-                            <h4 class="text-md font-medium">What would you like to do with this data?</h4>
+                            <h4 class="text-md font-medium">¿Qué le gustaría hacer con estos datos?</h4>
 
                             <div class="mt-4 flex flex-col md:flex-row gap-4">
                                 <form action="{{ route('import.generate-reports') }}" method="POST" class="flex-1">
@@ -98,13 +98,13 @@
                                     <input type="hidden" name="csv_path" value="{{ $path }}">
                                     
                                     <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-700 p-4 h-full">
-                                        <h5 class="font-medium mb-2">Generate Reports</h5>
+                                        <h5 class="font-medium mb-2">Generar Informes</h5>
                                         <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                                            Create or update athletes and generate reports based on the data. 
-                                            Suitable for importing evaluation data.
+                                            Crear o actualizar atletas y generar informes basados en los datos.
+                                            Adecuado para importar datos de evaluación.
                                         </p>
                                         <button type="submit" class="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
-                                            Generate Reports
+                                            Generar Informes
                                         </button>
                                     </div>
                                 </form>
@@ -115,26 +115,26 @@
                                     <input type="hidden" name="import_type" value="athletes_only">
                                     
                                     <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-700 p-4 h-full">
-                                        <h5 class="font-medium mb-2">Import Athletes Only</h5>
+                                        <h5 class="font-medium mb-2">Importar Solo Atletas</h5>
                                         <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                                            Create or update athletes without generating reports. 
-                                            Suitable for just updating your athlete database.
+                                            Crear o actualizar atletas sin generar informes.
+                                            Adecuado para solo actualizar su base de datos de atletas.
                                         </p>
                                         <button type="submit" class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-                                            Import Athletes
+                                            Importar Atletas
                                         </button>
                                     </div>
                                 </form>
 
                                 <a href="{{ route('import.form') }}" class="flex-1">
                                     <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-700 p-4 h-full">
-                                        <h5 class="font-medium mb-2">Cancel Import</h5>
+                                        <h5 class="font-medium mb-2">Cancelar Importación</h5>
                                         <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                                            Cancel the import process and return to the import page. 
-                                            No data will be imported.
+                                            Cancelar el proceso de importación y volver a la página de importación.
+                                            No se importará ningún dato.
                                         </p>
                                         <button type="button" class="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
-                                            Cancel
+                                            Cancelar
                                         </button>
                                     </div>
                                 </a>

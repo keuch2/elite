@@ -1,5 +1,14 @@
 @php
 use Illuminate\Support\Str;
+
+// Define mandatory fields - these cannot be unchecked
+$mandatoryFields = [
+    'nombre', 
+    'apellido', 
+    'documento_de_identidad',
+    'fecha_de_nacimiento',
+    'institucion', // Institution field
+];
 @endphp
 <x-app-layout>
     <x-slot name="header">
@@ -36,6 +45,11 @@ use Illuminate\Support\Str;
                             @csrf
 
                             <h2 class="text-lg font-semibold mb-6">Crear Plantilla de Reporte</h2>
+
+                            {{-- Hidden inputs for mandatory fields to ensure they're submitted even though checkboxes are disabled --}}
+                            @foreach ($mandatoryFields as $field)
+                                <input type="hidden" name="fields[]" value="{{ $field }}">
+                            @endforeach
 
                             <div>
                                 <x-input-label for="name" :value="__('Nombre del reporte')" class="mb-2"/>
@@ -91,6 +105,10 @@ use Illuminate\Support\Str;
                                                             value="{{ $key }}"
                                                             class="section-checkbox section-checkbox-{{ $sectionSlug }} rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
                                                             data-section="{{ $sectionSlug }}"
+                                                            @if (in_array($key, $mandatoryFields)) 
+                                                                checked 
+                                                                disabled 
+                                                            @endif
                                                         >
                                                         <span>{{ $label }}</span>
                                                     </label>
@@ -145,8 +163,10 @@ use Illuminate\Support\Str;
                     console.log(`Select All Checkbox for ${section} changed:`, e.target.checked);
                     
                     sectionCheckboxes.forEach(checkbox => {
-                        checkbox.checked = e.target.checked;
-                        console.log(`Checkbox ${checkbox.value} set to ${checkbox.checked}`);
+                        if (!checkbox.disabled) {
+                            checkbox.checked = e.target.checked;
+                            console.log(`Checkbox ${checkbox.value} set to ${checkbox.checked}`);
+                        }
                     });
                 });
             });

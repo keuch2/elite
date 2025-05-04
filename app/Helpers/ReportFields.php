@@ -16,6 +16,7 @@ class ReportFields {
                 'grado' => 'Grado',
                 'deporte' => 'Deporte',
                 'categoria' => 'Categoria',
+                'institucion' => 'Institución',
                 'nombre_del_padre' => 'Nombre del Padre',
                 'nombre_de_la_madre' => 'Nombre de la Madre',
                 'nombre_tutor' => 'Nombre Tutor',

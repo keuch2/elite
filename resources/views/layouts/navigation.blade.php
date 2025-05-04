@@ -13,18 +13,41 @@
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
+                        {{ __('Panel Principal') }}
                     </x-nav-link>
 
                     @auth
+                        <x-nav-link :href="route('athletes.index')" :active="request()->routeIs('athletes.*')">
+                            {{ __('Atletas') }}
+                        </x-nav-link>
+                        
+                        <x-nav-link :href="route('athletes.create')" :active="request()->routeIs('athletes.create')">
+                            {{ __('Crear Atleta') }}
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('import.form')"
+                                       :active="request()->routeIs('import.*')">
+                            {{ __('Subir Datos de Atletas') }}
+                        </x-nav-link>
+                        
+                        <x-nav-link :href="route('institutions.index')" :active="request()->routeIs('institutions.*')">
+                            {{ __('Instituciones') }}
+                        </x-nav-link>
+                        
+                        <x-nav-link :href="route('institutions.create')" :active="request()->routeIs('institutions.create')">
+                            {{ __('Crear Institución') }}
+                        </x-nav-link>
+                        
                         <x-nav-link :href="route('report-config.create')"
                                     :active="request()->routeIs('report-config.*')">
                             {{ __('Plantillas') }}
                         </x-nav-link>
-                        <x-nav-link :href="route('import.file')"
-                                       :active="request()->routeIs('import-file.*')">
-                    {{ __('Subir Atletas') }}
-                     </x-nav-link>
+                        
+                        
+                        <x-nav-link :href="route('users.create')"
+                                       :active="request()->routeIs('users.*')">
+                            {{ __('Usuarios') }}
+                        </x-nav-link>
                     @endauth
                 </div>
             </div>
@@ -81,17 +104,39 @@
         <!-- Responsive Navigation Links -->
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
+                {{ __('Panel Principal') }}
             </x-responsive-nav-link>
 
             @auth
-                <x-responsive-nav-link :href="route('import.file')"
-                                       :active="request()->routeIs('import-file.*')">
-                    {{ __('Subir Atletas') }}
+                <x-responsive-nav-link :href="route('athletes.index')" :active="request()->routeIs('athletes.*')">
+                    {{ __('Atletas') }}
                 </x-responsive-nav-link>
+                
+                <x-responsive-nav-link :href="route('athletes.create')" :active="request()->routeIs('athletes.create')">
+                    {{ __('Crear Atleta') }}
+                </x-responsive-nav-link>
+                
+                <x-responsive-nav-link :href="route('institutions.index')" :active="request()->routeIs('institutions.*')">
+                    {{ __('Instituciones') }}
+                </x-responsive-nav-link>
+                
+                <x-responsive-nav-link :href="route('institutions.create')" :active="request()->routeIs('institutions.create')">
+                    {{ __('Crear Institución') }}
+                </x-responsive-nav-link>
+                
                 <x-responsive-nav-link :href="route('report-config.create')"
                                        :active="request()->routeIs('report-config.*')">
                     {{ __('Plantillas') }}
+                </x-responsive-nav-link>
+                
+                <x-responsive-nav-link :href="route('import.form')"
+                                       :active="request()->routeIs('import.*')">
+                    {{ __('Subir Atletas') }}
+                </x-responsive-nav-link>
+                
+                <x-responsive-nav-link :href="route('users.create')"
+                                       :active="request()->routeIs('users.*')">
+                    {{ __('Usuarios') }}
                 </x-responsive-nav-link>
             @endauth
         </div>
