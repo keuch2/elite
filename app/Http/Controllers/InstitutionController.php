@@ -45,7 +45,22 @@ class InstitutionController extends Controller
     public function show(string $id)
     {
         $institution = Institution::with('athletes')->findOrFail($id);
-        return view('institutions.show', compact('institution'));
+        
+        // Get athletes with pagination and search functionality
+        $query = $institution->athletes()->with('athleteProfile');
+        
+        // Apply search filter if provided
+        if (request()->has('search')) {
+            $search = request('search');
+            $query->whereHas('athleteProfile', function($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%");
+            });
+        }
+        
+        $athletes = $query->paginate(15);
+        
+        return view('institutions.show', compact('institution', 'athletes'));
     }
 
     /**
@@ -93,30 +108,73 @@ class InstitutionController extends Controller
     }
 
     /**
-     * Show all evaluations from an institution.
-     */
-    public function evaluations(string $id)
-    {
-        $institution = Institution::findOrFail($id);
-        $evaluations = $institution->athletes()->with('anthropometricData')->paginate(15);
-        
-        return view('institutions.evaluations', [
-            'institution' => $institution,
-            'evaluations' => $evaluations,
-        ]);
-    }
-
-    /**
      * Show reports for an institution.
      */
     public function reports(string $id)
     {
         $institution = Institution::findOrFail($id);
+        
+        // Determine which view to use based on the requested route
+        $routeName = request()->route()->getName();
+        
+        if ($routeName === 'institutions.evaluations') {
+            // If accessing via the old 'evaluations' route, use the evaluations view
+            // but populate it with the same data
+            $evaluations = $institution->athletes()->with('anthropometricData')->paginate(15);
+            
+            // Apply sport filter if specified
+            if (request()->has('sport') && !empty(request('sport'))) {
+                $evaluations = $institution->athletes()
+                    ->where('sport', request('sport'))
+                    ->with('anthropometricData')
+                    ->paginate(15);
+            }
+            
+            return view('institutions.evaluations', [
+                'institution' => $institution,
+                'evaluations' => $evaluations,
+            ]);
+        }
+        
+        // Default reports view
         $reports = $institution->athletes()->with('reports')->paginate(15);
+        
+        // Get gender statistics
+        $genderStats = $institution->athletes()
+            ->join('athlete_profiles', 'athletes.athlete_profile_id', '=', 'athlete_profiles.id')
+            ->selectRaw('athlete_profiles.gender, COUNT(*) as count')
+            ->groupBy('athlete_profiles.gender')
+            ->get();
+            
+        // Get age statistics
+        $ageStats = $institution->athletes()
+            ->join('athlete_profiles', 'athletes.athlete_profile_id', '=', 'athlete_profiles.id')
+            ->selectRaw("
+                CASE 
+                    WHEN TIMESTAMPDIFF(YEAR, athlete_profiles.birth_date, CURDATE()) < 12 THEN 'Under 12'
+                    WHEN TIMESTAMPDIFF(YEAR, athlete_profiles.birth_date, CURDATE()) BETWEEN 12 AND 14 THEN '12-14'
+                    WHEN TIMESTAMPDIFF(YEAR, athlete_profiles.birth_date, CURDATE()) BETWEEN 15 AND 17 THEN '15-17'
+                    WHEN TIMESTAMPDIFF(YEAR, athlete_profiles.birth_date, CURDATE()) BETWEEN 18 AND 20 THEN '18-20'
+                    ELSE 'Over 20'
+                END as age_group,
+                COUNT(*) as count
+            ")
+            ->groupBy('age_group')
+            ->get();
+            
+        // Get sport statistics
+        $sportStats = $institution->athletes()
+            ->join('athlete_profiles', 'athletes.athlete_profile_id', '=', 'athlete_profiles.id')
+            ->selectRaw('athletes.sport, COUNT(*) as count')
+            ->groupBy('athletes.sport')
+            ->get();
         
         return view('institutions.reports', [
             'institution' => $institution,
             'reports' => $reports,
+            'genderStats' => $genderStats,
+            'ageStats' => $ageStats,
+            'sportStats' => $sportStats,
         ]);
     }
 }

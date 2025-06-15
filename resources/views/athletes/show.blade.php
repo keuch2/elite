@@ -5,14 +5,11 @@
                 {{ $athlete->first_name }} {{ $athlete->last_name }}
             </h2>
             <div class="flex space-x-2">
-                <a href="{{ route('athletes.add-evaluation', $athlete->id) }}" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
-                    {{ __('Add New Evaluation') }}
+                <a href="{{ url('/athletes/'.$athlete->id.'/edit') }}" class="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700">
+                    {{ __('Editar Perfil') }}
                 </a>
-                <a href="{{ route('athletes.edit', $athlete->id) }}" class="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700">
-                    {{ __('Edit Profile') }}
-                </a>
-                <a href="{{ route('athletes.index') }}" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700">
-                    {{ __('Back to Athletes') }}
+                <a href="{{ url('/athletes') }}" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700">
+                    {{ __('Volver a Atletas') }}
                 </a>
             </div>
         </div>
@@ -28,36 +25,36 @@
                         </div>
                     @endif
 
-                    <h3 class="text-lg font-medium mb-4">Athlete Profile</h3>
+                    <h3 class="text-lg font-medium mb-4">Perfil del Atleta</h3>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                         <div>
-                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Full Name</p>
+                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Nombre Completo</p>
                             <p class="mt-1">{{ $athlete->first_name }} {{ $athlete->last_name }}</p>
                         </div>
                         <div>
-                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Gender</p>
-                            <p class="mt-1">{{ $athlete->gender == 'm' ? 'Male' : ($athlete->gender == 'f' ? 'Female' : 'Other') }}</p>
+                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Género</p>
+                            <p class="mt-1">{{ $athlete->gender == 'm' ? 'Masculino' : ($athlete->gender == 'f' ? 'Femenino' : 'Otro') }}</p>
                         </div>
                         <div>
-                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">ID Document</p>
-                            <p class="mt-1">{{ $athlete->identity_document ?? 'Not provided' }}</p>
+                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Documento de Identidad</p>
+                            <p class="mt-1">{{ $athlete->identity_document ?? 'No proporcionado' }}</p>
                         </div>
                         <div>
-                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Birth Date</p>
-                            <p class="mt-1">{{ $athlete->birth_date ? date('d/m/Y', strtotime($athlete->birth_date)) : 'Not provided' }}</p>
+                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Fecha de Nacimiento</p>
+                            <p class="mt-1">{{ $athlete->birth_date ? date('d/m/Y', strtotime($athlete->birth_date)) : 'No proporcionada' }}</p>
                         </div>
                         <div>
-                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Father's Name</p>
-                            <p class="mt-1">{{ $athlete->father_name ?? 'Not provided' }}</p>
+                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Nombre del Padre</p>
+                            <p class="mt-1">{{ $athlete->father_name ?? 'No proporcionado' }}</p>
                         </div>
                         <div>
-                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Mother's Name</p>
-                            <p class="mt-1">{{ $athlete->mother_name ?? 'Not provided' }}</p>
+                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Nombre de la Madre</p>
+                            <p class="mt-1">{{ $athlete->mother_name ?? 'No proporcionado' }}</p>
                         </div>
                         <div>
-                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Institution</p>
-                            <p class="mt-1">{{ $athlete->institution->name ?? 'Not provided' }}</p>
+                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Institución</p>
+                            <p class="mt-1">{{ $athlete->institution->name ?? 'No proporcionada' }}</p>
                         </div>
                     </div>
                 </div>
@@ -66,12 +63,12 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-medium">Evaluations History</h3>
+                        <h3 class="text-lg font-medium">Historial de Reportes</h3>
                         @if($evaluations->count() > 1)
                             <form action="{{ route('athletes.compare') }}" method="GET" class="flex items-center">
                                 <input type="hidden" name="evaluations" id="selected-evaluations" value="">
                                 <button type="submit" id="compare-btn" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
-                                    {{ __('Compare Selected') }}
+                                    {{ __('Comparar Seleccionados') }}
                                 </button>
                             </form>
                         @endif
@@ -86,19 +83,19 @@
                                             <input type="checkbox" id="select-all" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                                         </th>
                                     @endif
-                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Evaluation Date</th>
-                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Age</th>
-                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Grade</th>
-                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Sport</th>
-                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Category</th>
-                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Weight</th>
-                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Height</th>
-                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Actions</th>
+                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Fecha de Reporte</th>
+                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Edad</th>
+                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Grado</th>
+                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Deporte</th>
+                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Categoría</th>
+                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Peso</th>
+                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Altura</th>
+                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($evaluations as $evaluation)
-                                    <tr class="hover:bg-gray-100 dark:hover:bg-gray-700 {{ $athlete->id == $evaluation->id ? 'bg-blue-50 dark:bg-blue-900/20' : '' }}">
+                                    <tr class="hover:bg-gray-100 dark:hover:bg-gray-700">
                                         @if($evaluations->count() > 1)
                                             <td class="py-2 px-4 border-b border-gray-300 dark:border-gray-700">
                                                 <input type="checkbox" name="evaluation_ids[]" value="{{ $evaluation->id }}" class="evaluation-checkbox rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
@@ -126,20 +123,20 @@
                                             {{ $evaluation->anthropometricData->standing_height ?? '-' }} cm
                                         </td>
                                         <td class="py-2 px-4 border-b border-gray-300 dark:border-gray-700">
-                                            <a href="{{ route('athletes.evaluation', $evaluation->id) }}" class="text-blue-600 hover:underline mr-2">Details</a>
-                                            @if($athlete->id != $evaluation->id)
-                                                <form action="{{ route('athletes.destroy', $evaluation->id) }}" method="POST" class="inline">
+                                            <div class="flex space-x-2">
+                                                <a href="{{ url('athletes/'.$evaluation->id.'/evaluation') }}" class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-600 rounded hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800">Detalles</a>
+                                                <form action="{{ url('/athletes/'.$evaluation->id) }}" method="POST" class="inline">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:underline" onclick="return confirm('Are you sure you want to delete this evaluation?')">Delete</button>
+                                                    <button type="submit" class="px-2 py-1 text-xs font-medium bg-red-100 text-red-600 rounded hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800" onclick="return confirm('¿Estás seguro de que deseas eliminar este reporte?')">Eliminar</button>
                                                 </form>
-                                            @endif
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
                                         <td colspan="{{ $evaluations->count() > 1 ? 9 : 8 }}" class="py-4 px-4 text-center text-gray-500 dark:text-gray-400">
-                                            No evaluations found.
+                                            No se encontraron reportes.
                                         </td>
                                     </tr>
                                 @endforelse

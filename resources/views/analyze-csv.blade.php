@@ -93,7 +93,7 @@
                             <h4 class="text-md font-medium">¿Qué le gustaría hacer con estos datos?</h4>
 
                             <div class="mt-4 flex flex-col md:flex-row gap-4">
-                                <form action="{{ route('import.generate-reports') }}" method="POST" class="flex-1">
+                                <form action="{{ route('generate.reports') }}" method="POST" class="flex-1">
                                     @csrf
                                     <input type="hidden" name="csv_path" value="{{ $path }}">
                                     
@@ -103,13 +103,26 @@
                                             Crear o actualizar atletas y generar informes basados en los datos.
                                             Adecuado para importar datos de evaluación.
                                         </p>
+                                        
+                                        <div class="mb-4">
+                                            <label for="template_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                Seleccione una plantilla de informe
+                                            </label>
+                                            <select name="template_id" id="template_id" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" required>
+                                                <option value="">Seleccione una plantilla</option>
+                                                @foreach($templates as $template)
+                                                    <option value="{{ $template->id }}">{{ $template->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        
                                         <button type="submit" class="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
                                             Generar Informes
                                         </button>
                                     </div>
                                 </form>
 
-                                <form action="{{ route('import.upload') }}" method="POST" class="flex-1">
+                                <form action="{{ route('import.file') }}" method="POST" class="flex-1">
                                     @csrf
                                     <input type="hidden" name="csv_path" value="{{ $path }}">
                                     <input type="hidden" name="import_type" value="athletes_only">

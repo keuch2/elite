@@ -48,8 +48,8 @@
                                     <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Documento ID</th>
                                     <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Fecha de Nacimiento</th>
                                     <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Institución</th>
-                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Evaluaciones</th>
-                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Última Evaluación</th>
+                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Reportes</th>
+                                    <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Último Reporte</th>
                                     <th class="py-2 px-4 border-b border-gray-300 dark:border-gray-700 text-left">Acciones</th>
                                 </tr>
                             </thead>
@@ -79,13 +79,13 @@
                                         <td class="py-2 px-4 border-b border-gray-300 dark:border-gray-700">
                                             {{ $athlete->latest_evaluation ? date('d/m/Y', strtotime($athlete->latest_evaluation)) : '-' }}
                                         </td>
-                                        <td class="py-2 px-4 border-b border-gray-300 dark:border-gray-700">
-                                            <a href="{{ route('athletes.show', $athlete->id) }}" class="text-blue-600 hover:underline mr-2">Ver</a>
-                                            <a href="{{ route('athletes.edit', $athlete->id) }}" class="text-yellow-600 hover:underline mr-2">Editar</a>
-                                            <form action="{{ route('athletes.destroy', $athlete->id) }}" method="POST" class="inline">
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <a href="{{ route('athletes.show', $athlete->id) }}" class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-600 rounded hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 mr-1">Ver</a>
+                                            <a href="{{ route('athletes.edit', $athlete->id) }}" class="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-600 rounded hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-300 dark:hover:bg-yellow-800 mr-1">Editar</a>
+                                            <form class="inline" method="POST" action="{{ route('athletes.destroy', $athlete->id) }}">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:underline" onclick="return confirm('¿Está seguro que desea eliminar esta evaluación?')">Eliminar</button>
+                                                <button type="submit" class="px-2 py-1 text-xs font-medium bg-red-100 text-red-600 rounded hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800" onclick="return confirm('¿Está seguro que desea eliminar esta evaluación?')">Eliminar</button>
                                             </form>
                                         </td>
                                     </tr>

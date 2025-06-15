@@ -1,0 +1,51 @@
+/* Global button fixes to ensure all buttons with white text have visible backgrounds */
+
+/* Default button style */
+button, 
+input[type="submit"],
+.btn,
+a.btn {
+    background-color: #2563eb !important; /* blue-600 */
+    color: white !important;
+}
+
+/* Fix for buttons with white text but no background */
+button.text-white:not([class*="bg-"]),
+a.text-white:not([class*="bg-"]),
+input[type="submit"].text-white:not([class*="bg-"]) {
+    background-color: #2563eb !important; /* blue-600 */
+}
+
+/* Preserve specific background colors */
+.bg-blue-500, .bg-blue-600, .bg-blue-700 {
+    background-color: #3b82f6 !important; /* blue-500 */
+}
+
+.bg-green-500, .bg-green-600, .bg-green-700 {
+    background-color: #10b981 !important; /* green-500 */
+}
+
+.bg-yellow-500, .bg-yellow-600, .bg-yellow-700 {
+    background-color: #f59e0b !important; /* yellow-500 */
+}
+
+.bg-red-500, .bg-red-600, .bg-red-700 {
+    background-color: #ef4444 !important; /* red-500 */
+}
+
+.bg-gray-500, .bg-gray-600, .bg-gray-700 {
+    background-color: #6b7280 !important; /* gray-500 */
+}
+
+.bg-purple-500, .bg-purple-600, .bg-purple-700 {
+    background-color: #8b5cf6 !important; /* purple-500 */
+}
+
+.bg-amber-500, .bg-amber-600, .bg-amber-700 {
+    background-color: #f59e0b !important; /* amber-500 */
+}
+
+/* Ensure all buttons with specific background colors have white text */
+[class*="bg-"] {
+    color: white !important;
+}

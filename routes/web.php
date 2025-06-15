@@ -38,27 +38,20 @@ Route::middleware('auth')->group(function () {
         ->name('report-config.update');
     Route::delete('/report-templates/{config}', [ReportConfigController::class, 'destroy'])
         ->name('report-config.destroy');
+    Route::get('/report-templates/{config}/fields', [ReportConfigController::class, 'getFields'])
+        ->name('report-config.fields');
 
     // Import routes
     Route::get('/import', [ImportController::class, 'showUploadForm'])->name('import.form');
     Route::post('/import', [ImportController::class, 'import'])->name('import.file');
     Route::post('/generate-reports', [ImportController::class, 'generateReports'])->name('generate.reports');
 
-    Route::get('/reports/{report}/pdf', [ReportController::class, 'exportPdf'])
-        ->name('reports.export-pdf');
-    Route::get('/reports/{report}', [ReportController::class, 'show'])
-        ->name('reports.show');
-    Route::get('/reports', [ReportController::class, 'index'])
-        ->name('reports.index');
-    Route::post('/reports', [ReportController::class, 'store'])
-        ->name('reports.store');
-
     // Report routes - order is important for wildcard routes
     Route::get('/reports/athletes-by-institution/{institution_id}', [ReportController::class, 'getAthletesByInstitution'])
         ->name('reports.athletes-by-institution');
     Route::get('/reports/athlete-details/{athlete_id}', [ReportController::class, 'getAthleteDetails'])
         ->name('reports.athlete-details');
-    Route::get('/reports/athlete/{athlete}', [ReportController::class, 'athleteReports'])
+    Route::get('/reports/athlete/{athleteId}', [ReportController::class, 'getReportsByAthlete'])
         ->name('reports.athlete');
     Route::get('/reports/compare/{athlete}', [ReportController::class, 'compareReports'])
         ->name('reports.compare');

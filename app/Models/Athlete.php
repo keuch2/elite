@@ -41,4 +41,11 @@ class Athlete extends Model {
     public function reports() {
         return $this->hasMany(Report::class, 'athlete_id');
     }
+
+    /**
+     * Get the athlete profile associated with this evaluation
+     */
+    public function athleteProfile() {
+        return $this->belongsTo(AthleteProfile::class, 'athlete_profile_id');
+    }
 }

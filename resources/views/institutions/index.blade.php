@@ -80,13 +80,13 @@
                                             @endif
                                         </td>
                                         <td class="py-2 px-4 border-b border-gray-300 dark:border-gray-700">
-                                            <div class="flex items-center space-x-2">
-                                                <a href="{{ route('institutions.show', $institution->id) }}" class="text-blue-600 hover:underline">Ver</a>
-                                                <a href="{{ route('institutions.edit', $institution->id) }}" class="text-amber-600 hover:underline">Editar</a>
-                                                <form action="{{ route('institutions.destroy', $institution->id) }}" method="POST" class="inline-block">
+                                            <div class="flex space-x-2">
+                                                <a href="{{ route('institutions.show', $institution->id) }}" class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-600 rounded hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800">Ver</a>
+                                                <a href="{{ route('institutions.edit', $institution->id) }}" class="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-600 rounded hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-300 dark:hover:bg-yellow-800">Editar</a>
+                                                <form action="{{ route('institutions.destroy', $institution->id) }}" method="POST" class="inline">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:underline" onclick="return confirm('¿Está seguro de que quiere eliminar esta institución? Esto no eliminará los atletas asociados pero eliminará la asociación.')">
+                                                    <button type="submit" class="px-2 py-1 text-xs font-medium bg-red-100 text-red-600 rounded hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800" onclick="return confirm('¿Está seguro de que quiere eliminar esta institución? Esto no eliminará los atletas asociados pero eliminará la asociación.')">
                                                         Eliminar
                                                     </button>
                                                 </form>

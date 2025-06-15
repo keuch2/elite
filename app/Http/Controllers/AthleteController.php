@@ -18,22 +18,23 @@ class AthleteController extends Controller
         $query = DB::table('athletes')
             ->select(
                 'athletes.id',
-                'athletes.first_name',
-                'athletes.last_name',
-                'athletes.gender',
-                'athletes.birth_date',
-                'athletes.identity_document',
+                'athlete_profiles.first_name',
+                'athlete_profiles.last_name',
+                'athlete_profiles.gender',
+                'athlete_profiles.birth_date',
+                'athlete_profiles.identity_document',
                 'institutions.name as institution_name',
                 DB::raw('COUNT(*) as evaluations_count'),
                 DB::raw('MAX(athletes.evaluation_date) as latest_evaluation')
             )
+            ->join('athlete_profiles', 'athletes.athlete_profile_id', '=', 'athlete_profiles.id')
             ->leftJoin('institutions', 'athletes.institution_id', '=', 'institutions.id')
             ->groupBy(
-                'athletes.first_name',
-                'athletes.last_name',
-                'athletes.birth_date',
-                'athletes.gender',
-                'athletes.identity_document',
+                'athlete_profiles.first_name',
+                'athlete_profiles.last_name',
+                'athlete_profiles.birth_date',
+                'athlete_profiles.gender',
+                'athlete_profiles.identity_document',
                 'athletes.id',
                 'institutions.name'
             );
@@ -71,7 +72,7 @@ class AthleteController extends Controller
             'last_name' => 'required|string|max:255',
             'gender' => 'required|string|in:m,f,other',
             'birth_date' => 'required|date',
-            'identity_document' => 'nullable|string|max:255|unique:athletes',
+            'identity_document' => 'nullable|string|max:255|unique:athlete_profiles',
             'institution_id' => 'nullable|exists:institutions,id',
             'father_name' => 'nullable|string|max:255',
             'mother_name' => 'nullable|string|max:255',
@@ -82,18 +83,55 @@ class AthleteController extends Controller
             'category' => 'nullable|string|max:255',
         ]);
 
-        // Create the athlete record
-        $athlete = Athlete::create($request->all());
-
-        // Optionally create anthropometric data if provided
-        if ($request->has('anthropometric_data')) {
-            $anthropometricData = $request->input('anthropometric_data');
-            $anthropometricData['athlete_id'] = $athlete->id;
-            AnthropometricData::create($anthropometricData);
+        // Begin transaction to ensure data consistency
+        DB::beginTransaction();
+        
+        try {
+            // Create athlete profile first
+            $profileData = [
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'gender' => $request->gender,
+                'birth_date' => $request->birth_date,
+                'identity_document' => $request->identity_document,
+                'institution_id' => $request->institution_id,
+                'father_name' => $request->father_name,
+                'mother_name' => $request->mother_name,
+            ];
+            
+            $profile = DB::table('athlete_profiles')->insertGetId($profileData);
+            
+            // Create athlete evaluation record
+            $athleteData = [
+                'athlete_profile_id' => $profile,
+                'evaluation_date' => $request->evaluation_date,
+                'age' => $request->age,
+                'grade' => $request->grade,
+                'sport' => $request->sport,
+                'category' => $request->category,
+                'institution_id' => $request->institution_id,
+                'evaluation_id' => \Illuminate\Support\Str::uuid(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+            
+            $athleteId = DB::table('athletes')->insertGetId($athleteData);
+            
+            // Optionally create anthropometric data if provided
+            if ($request->has('anthropometric_data')) {
+                $anthropometricData = $request->input('anthropometric_data');
+                $anthropometricData['athlete_id'] = $athleteId;
+                AnthropometricData::create($anthropometricData);
+            }
+            
+            DB::commit();
+            
+            return redirect()->route('athletes.show', $athleteId)
+                ->with('success', 'Athlete created successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Error creating athlete: ' . $e->getMessage()]);
         }
-
-        return redirect()->route('athletes.show', $athlete)
-            ->with('success', 'Athlete created successfully.');
     }
 
     /**
@@ -101,26 +139,44 @@ class AthleteController extends Controller
      */
     public function show(string $id)
     {
-        // Get the athlete record
-        $athlete = Athlete::findOrFail($id);
-        
-        // Find all evaluations for the same athlete (same identity or name+birthdate)
-        $query = Athlete::query();
-        
-        if ($athlete->identity_document) {
-            // If identity document exists, use it for matching
-            $query->where('identity_document', $athlete->identity_document);
-        } else {
-            // Otherwise use name and birth date
-            $query->where('first_name', $athlete->first_name)
-                ->where('last_name', $athlete->last_name)
-                ->where('birth_date', $athlete->birth_date);
+        // Get the athlete record with its profile
+        $athlete = DB::table('athletes')
+            ->join('athlete_profiles', 'athletes.athlete_profile_id', '=', 'athlete_profiles.id')
+            ->leftJoin('institutions', 'athletes.institution_id', '=', 'institutions.id')
+            ->select(
+                'athletes.*',
+                'athlete_profiles.first_name',
+                'athlete_profiles.last_name',
+                'athlete_profiles.gender',
+                'athlete_profiles.birth_date',
+                'athlete_profiles.identity_document',
+                'athlete_profiles.father_name',
+                'athlete_profiles.mother_name',
+                'institutions.name as institution_name'
+            )
+            ->where('athletes.id', $id)
+            ->first();
+            
+        if (!$athlete) {
+            abort(404, 'Athlete not found');
         }
         
-        // Get all evaluations ordered by date
-        $evaluations = $query->with('anthropometricData')
-                            ->orderBy('evaluation_date', 'desc')
-                            ->get();
+        // Find all evaluations for the same athlete profile
+        $evaluations = DB::table('athletes')
+            ->join('athlete_profiles', 'athletes.athlete_profile_id', '=', 'athlete_profiles.id')
+            ->leftJoin('anthropometric_data', 'athletes.id', '=', 'anthropometric_data.athlete_id')
+            ->select(
+                'athletes.*',
+                'athlete_profiles.first_name',
+                'athlete_profiles.last_name',
+                'athlete_profiles.gender',
+                'athlete_profiles.birth_date',
+                'athlete_profiles.identity_document',
+                'anthropometric_data.*'
+            )
+            ->where('athletes.athlete_profile_id', $athlete->athlete_profile_id)
+            ->orderBy('athletes.evaluation_date', 'desc')
+            ->get();
 
         return view('athletes.show', [
             'athlete' => $athlete,
@@ -133,7 +189,28 @@ class AthleteController extends Controller
      */
     public function showEvaluation(string $id)
     {
-        $evaluation = Athlete::with('anthropometricData')->findOrFail($id);
+        $evaluation = DB::table('athletes')
+            ->join('athlete_profiles', 'athletes.athlete_profile_id', '=', 'athlete_profiles.id')
+            ->leftJoin('institutions', 'athletes.institution_id', '=', 'institutions.id')
+            ->leftJoin('anthropometric_data', 'athletes.id', '=', 'anthropometric_data.athlete_id')
+            ->select(
+                'athletes.*',
+                'athlete_profiles.first_name',
+                'athlete_profiles.last_name',
+                'athlete_profiles.gender',
+                'athlete_profiles.birth_date',
+                'athlete_profiles.identity_document',
+                'athlete_profiles.father_name',
+                'athlete_profiles.mother_name',
+                'institutions.name as institution_name',
+                'anthropometric_data.*'
+            )
+            ->where('athletes.id', $id)
+            ->first();
+            
+        if (!$evaluation) {
+            abort(404, 'Evaluation not found');
+        }
         
         return view('athletes.evaluation', [
             'evaluation' => $evaluation,
@@ -145,8 +222,28 @@ class AthleteController extends Controller
      */
     public function edit(string $id)
     {
+        $athlete = DB::table('athletes')
+            ->join('athlete_profiles', 'athletes.athlete_profile_id', '=', 'athlete_profiles.id')
+            ->select(
+                'athletes.*',
+                'athlete_profiles.id as profile_id',
+                'athlete_profiles.first_name',
+                'athlete_profiles.last_name',
+                'athlete_profiles.gender',
+                'athlete_profiles.birth_date',
+                'athlete_profiles.identity_document',
+                'athlete_profiles.father_name',
+                'athlete_profiles.mother_name'
+            )
+            ->where('athletes.id', $id)
+            ->first();
+            
+        if (!$athlete) {
+            abort(404, 'Athlete not found');
+        }
+        
         return view('athletes.edit', [
-            'athlete' => Athlete::findOrFail($id),
+            'athlete' => $athlete,
             'institutions' => Institution::all(),
         ]);
     }
@@ -156,14 +253,12 @@ class AthleteController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $athlete = Athlete::findOrFail($id);
-        
         $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'gender' => 'required|string|in:m,f,other',
             'birth_date' => 'required|date',
-            'identity_document' => 'nullable|string|max:255|unique:athletes,identity_document,'.$id,
+            'identity_document' => 'nullable|string|max:255',
             'institution_id' => 'nullable|exists:institutions,id',
             'father_name' => 'nullable|string|max:255',
             'mother_name' => 'nullable|string|max:255',
@@ -174,21 +269,81 @@ class AthleteController extends Controller
             'category' => 'nullable|string|max:255',
         ]);
 
-        $athlete->update($request->all());
-
-        // Update anthropometric data if it exists
-        if ($athlete->anthropometricData && $request->has('anthropometric_data')) {
-            $athlete->anthropometricData->update($request->input('anthropometric_data'));
-        } 
-        // Create new anthropometric data if it doesn't exist but is provided
-        elseif ($request->has('anthropometric_data')) {
-            $anthropometricData = $request->input('anthropometric_data');
-            $anthropometricData['athlete_id'] = $athlete->id;
-            AnthropometricData::create($anthropometricData);
+        // Begin transaction to ensure data consistency
+        DB::beginTransaction();
+        
+        try {
+            // Get the athlete record
+            $athlete = DB::table('athletes')->where('id', $id)->first();
+            
+            if (!$athlete) {
+                abort(404, 'Athlete not found');
+            }
+            
+            // Update athlete profile
+            $profileData = [
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'gender' => $request->gender,
+                'birth_date' => $request->birth_date,
+                'identity_document' => $request->identity_document,
+                'institution_id' => $request->institution_id,
+                'father_name' => $request->father_name,
+                'mother_name' => $request->mother_name,
+                'updated_at' => now(),
+            ];
+            
+            DB::table('athlete_profiles')
+                ->where('id', $athlete->athlete_profile_id)
+                ->update($profileData);
+            
+            // Update athlete evaluation record
+            $athleteData = [
+                'evaluation_date' => $request->evaluation_date,
+                'age' => $request->age,
+                'grade' => $request->grade,
+                'sport' => $request->sport,
+                'category' => $request->category,
+                'institution_id' => $request->institution_id,
+                'updated_at' => now(),
+            ];
+            
+            DB::table('athletes')
+                ->where('id', $id)
+                ->update($athleteData);
+            
+            // Update anthropometric data if provided
+            if ($request->has('anthropometric_data')) {
+                $anthropometricData = $request->input('anthropometric_data');
+                
+                // Check if anthropometric data exists
+                $existingData = DB::table('anthropometric_data')
+                    ->where('athlete_id', $id)
+                    ->first();
+                
+                if ($existingData) {
+                    // Update existing data
+                    DB::table('anthropometric_data')
+                        ->where('athlete_id', $id)
+                        ->update($anthropometricData);
+                } else {
+                    // Create new data
+                    $anthropometricData['athlete_id'] = $id;
+                    $anthropometricData['created_at'] = now();
+                    $anthropometricData['updated_at'] = now();
+                    
+                    DB::table('anthropometric_data')->insert($anthropometricData);
+                }
+            }
+            
+            DB::commit();
+            
+            return redirect()->route('athletes.show', $id)
+                ->with('success', 'Athlete updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Error updating athlete: ' . $e->getMessage()]);
         }
-
-        return redirect()->route('athletes.show', $athlete)
-            ->with('success', 'Athlete updated successfully.');
     }
 
     /**

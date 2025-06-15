@@ -6,3 +6,75 @@
 #elitelogo {
     height:30px;
 }
+
+@layer components {
+    /* Fix for buttons with white text but no background color */
+    .btn-default {
+        background-color: #2563eb;
+        color: white;
+    }
+    .btn-default:hover {
+        background-color: #1d4ed8;
+    }
+    
+    /* Style for all buttons to ensure visibility */
+    button, 
+    input[type="submit"],
+    .btn,
+    a.btn {
+        background-color: #2563eb;
+        color: white;
+    }
+    button:hover, 
+    input[type="submit"]:hover,
+    .btn:hover,
+    a.btn:hover {
+        background-color: #1d4ed8;
+    }
+    
+    /* Preserve specific background colors */
+    .bg-green-500, .bg-green-600, .bg-green-700 {
+        color: white;
+    }
+    
+    .bg-yellow-500, .bg-yellow-600, .bg-yellow-700 {
+        color: white;
+    }
+    
+    .bg-red-500, .bg-red-600, .bg-red-700 {
+        color: white;
+    }
+    
+    .bg-gray-500, .bg-gray-600, .bg-gray-700 {
+        color: white;
+    }
+    
+    .bg-purple-500, .bg-purple-600, .bg-purple-700 {
+        color: white;
+    }
+    
+    .bg-amber-500, .bg-amber-600, .bg-amber-700 {
+        color: white;
+    }
+    
+    /* Ensure submit buttons always have proper styling */
+    button[type="submit"]:not([class*="bg-"]) {
+        background-color: #2563eb;
+        color: white;
+    }
+    button[type="submit"]:not([class*="bg-"]):hover {
+        background-color: #1d4ed8;
+    }
+    
+    /* Fix for buttons with white text but no background */
+    button.text-white:not([class*="bg-"]),
+    a.text-white:not([class*="bg-"]),
+    input[type="submit"].text-white:not([class*="bg-"]) {
+        background-color: #2563eb;
+    }
+    button.text-white:not([class*="bg-"]):hover,
+    a.text-white:not([class*="bg-"]):hover,
+    input[type="submit"].text-white:not([class*="bg-"]):hover {
+        background-color: #1d4ed8;
+    }
+}
